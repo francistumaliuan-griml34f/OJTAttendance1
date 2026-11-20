@@ -214,7 +214,7 @@ fun RecordScreen(store: Store, records: List<Rec>, nowMs: Long?, onChanged: () -
                     val future = ProcessCameraProvider.getInstance(c)
                     future.addListener({
                         val provider = future.get()
-                        val preview = Preview.Builder().build().also { it.surfaceProvider = pv.surfaceProvider }
+                        val preview = Preview.Builder().build().also { it.setSurfaceProvider(pv.surfaceProvider) }
                         val selector = if (provider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA))
                             CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
                         provider.unbindAll()

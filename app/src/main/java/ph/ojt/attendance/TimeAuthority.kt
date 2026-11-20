@@ -37,14 +37,15 @@ object TimeAuthority {
                     .putInt("boot", bootCount(ctx))
                     .apply()
                 return true
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                // try next server
             }
         }
         return false
     }
 
     private fun query(host: String): Pair<Long, Long>? {
-        DatagramSocket().use { s ->
+        return DatagramSocket().use { s ->
             s.soTimeout = 4000
             val addr = InetAddress.getByName(host)
             val buf = ByteArray(48)
@@ -55,7 +56,7 @@ object TimeAuthority {
             s.receive(resp)
             val t1 = SystemClock.elapsedRealtime()
             val rtt = t1 - t0
-            if (rtt > 3000) return null
+            if (rtt > 3000) return@use null
             val d = resp.data
             fun u32(o: Int): Long {
                 var v = 0L
@@ -64,9 +65,9 @@ object TimeAuthority {
             }
             val sec = u32(40)
             val frac = u32(44)
-            if (sec == 0L) return null
+            if (sec == 0L) return@use null
             val ms = (sec - 2208988800L) * 1000L + ((frac * 1000L) shr 32)
-            return Pair(ms + rtt / 2, t1)
+            Pair(ms + rtt / 2, t1)
         }
     }
 
